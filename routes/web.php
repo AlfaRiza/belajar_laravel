@@ -23,5 +23,11 @@ Route::get('blog', function(){
 Route::get('/', 'UserController@index');
 Route::get('/about', 'UserController@about');
 Route::get('/blog', 'UserController@blog');
-
 Route::get('/employee', 'EmployeeController@index');
+Route::get('/employee/cari', 'EmployeeController@cari');
+Route::get('/employee/tambah','EmployeeController@create');
+Route::post('/employee','EmployeeController@store');
+Route::get('/employee/edit/{id}', 'EmployeeController@edit');
+Route::put('/employee/{id}', 'EmployeeController@update');
+Route::get('/employee/hapus/{id}', 'EmployeeController@destroy');
+

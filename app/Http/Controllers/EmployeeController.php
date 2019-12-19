@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Employee;
 
 class EmployeeController extends Controller
 {
@@ -13,7 +14,24 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        echo 'pegawai';
+        $employee = Employee::paginate(10);
+        return view('employee',['employee' => $employee]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * 
+     */
+    public function cari(Request $request){
+        
+        $employee = Employee::where('nama','like',"%".$request->cari."%")->orWhere('umur','like','%'.$request->cari.'%')->orWhere('jabatan','like','%'.$request->cari.'%')->paginate();
+        if ($employee) {
+            return view('employee',['employee' => $employee]);
+        }else{
+            abort(404);
+        }
+        
     }
 
     /**
@@ -23,7 +41,7 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        //
+        return view('employee/tambah');
     }
 
     /**
@@ -34,7 +52,28 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $nama = $request->nama;
+        $jabatan    = $request->jabatan;
+        $umur   = $request->umur;
+
+        $messages = [
+            'nama.required' => 'Nama harus di isi',
+            'jabatan.required' => 'Jabatan harus di isi',
+            'umur.required' => 'Umur harus di isi',
+            'umur.numeric' => 'Umur harus angka',
+        ];
+        $request->validate([
+            'nama' => 'required',
+            'jabatan' => 'required',
+            'umur'  => 'required|numeric'
+        ],$messages);
+        Employee::create([
+            'nama' => $nama,
+            'jabatan' => $jabatan,
+            'umur'  => $umur,
+            'created_at' => now()
+        ]);
+        return redirect('/employee');
     }
 
     /**
@@ -56,7 +95,8 @@ class EmployeeController extends Controller
      */
     public function edit($id)
     {
-        //
+        $employee = Employee::find($id);
+        return view('employee/edit', ['employee' => $employee]);
     }
 
     /**
@@ -68,7 +108,13 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $employee = Employee::find($id);
+        $employee->nama = $request->nama;
+        $employee->jabatan = $request->jabatan;
+        $employee->umur = $request->umur;
+        $employee->updated_at = now();
+        $employee->save();
+        return \redirect('employee');
     }
 
     /**
@@ -79,6 +125,8 @@ class EmployeeController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $employee = Employee::find($id);
+        $employee->delete();
+        return \redirect('employee');
     }
 }
